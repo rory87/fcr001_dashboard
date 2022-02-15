@@ -1,0 +1,11 @@
+[{"model": "analytics.feeder_gis", "pk": 4, "fields": {"title": "test", "network": "19", "line": "{\"type\":\"LineString\",\"coordinates\":[[-7.822158,57.307984],[-1.450481,55.521636],[-2.201921,50.504985]]}", "load": "{\"type\":\"Point\",\"coordinates\":[-4.141846,55.764731]}", "sub": null, "pillar": null}}, {"model": "analytics.mushroomspot", "pk": 1, "fields": {"title": "test", "description": "test", "picture": "test_image.jpeg", "geom": "{\"type\":\"Point\",\"coordinates\":[-4.071798,40.357709]}", "poly": null, "line": "{\"type\":\"LineString\",\"coordinates\":[[-2.610165,53.16818],[3.227239,50.540204],[11.382764,47.444191]]}"}}, {"model": "analytics.mushroomspot", "pk": 2, "fields": {"title": "test_new", "description": "new test", "picture": "test_image_B53n7YB.jpeg", "geom": "{\"type\":\"Point\",\"coordinates\":[-9.84375,54.162434]}", "poly": "{\"type\":\"Polygon\",\"coordinates\":[[[-0.198666,8.735792],[-0.198666,14.19605],[12.197571,14.19605],[12.197571,8.735792],[-0.198666,8.735792]]]}", "line": "{\"type\":\"LineString\",\"coordinates\":[[-4.222183,56.382868],[-3.123778,55.491953],[-4.079818,54.976432]]}"}},
+    
+    {"model": "analytics.load", "pk": 1, "fields": {"network": 19, "feeder": 2, "geom": "{\"type\":\"Point\",\"coordinates\":[-4.555668,55.578863]}"}},
+    
+    {"model": "analytics.load", "pk": 1, "fields": {"network": 19, "feeder": 2, "geom": "{\"type\":\"LineString\",\"coordinates\":[-2.965215902178429, 57.53863741750453]}"}}
+    
+    {"model": "analytics.cable", "pk": 1, "fields": {"network": 19, "feeder": 2, "geom": "{\"type\":\"LineString\",\"coordinates\":[[-5.984346,56.691689],[-3.522491,55.488711]]}"}},
+    
+    {"model": "analytics.sub", "pk": 1, "fields": {"network": 19, "feeder": 2, "geom": "{\"type\":\"Polygon\",\"coordinates\":[[[-3.867183,56.244878],[-3.867183,56.469067],[-3.469158,56.469067],[-3.469158,56.244878],[-3.867183,56.244878]]]}"}},
+
+    {"model": "analytics.pillar", "pk": 1, "fields": {"network": 19, "feeder": 2, "geom": "{\"type\":\"Polygon\",\"coordinates\":[[[-5.408473,56.206959],[-5.408473,56.807896],[-4.378046,56.807896],[-4.378046,56.206959],[-5.408473,56.206959]]]}"}}]

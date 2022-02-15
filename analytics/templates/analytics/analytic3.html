@@ -1,0 +1,294 @@
+{% extends 'base_bootstrap.html' %}
+
+{% block content %}
+{% load leaflet_tags %}
+
+<html>
+    <head>
+      {% leaflet_js %}
+      {% leaflet_css %}
+      <style>
+        .leaflet-container { height: 750; width: 100%}
+      </style>
+      <!--Load the AJAX API-->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"></link>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+      <script src="http://code.jquery.com/jquery-latest.js"></script>
+
+      <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+      <script type="text/javascript">
+      
+      
+
+    
+        // Load the Visualization API and the corechart package.
+        google.charts.load('current', {'packages':['corechart']});
+    
+        // Set a callback to run when the Google Visualization API is loaded.
+        google.charts.setOnLoadCallback(drawChart);
+    
+        function drawChart() {
+    
+          var djangoData = {{ array|safe }};
+          var data = google.visualization.arrayToDataTable(djangoData);
+    
+          var options = {'title':'Real Power', 
+          'width:': '94%',
+          'height': 500,
+          'legend' : 'none',
+          'vAxis' : { title: 'kW'}                    
+          };
+          
+
+          var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+
+          // Reactive Power.
+
+
+          var reactive = {{ reactive|safe }};
+          var reactive_data = google.visualization.arrayToDataTable(reactive);
+          var reactive_options = {'title': 'Reactive Power',
+          'width': '94%',
+          'legend': 'none',
+          'series': {0:{ color: '#e2431e' }},
+          'vAxis': {title: 'kVAR'}
+          };
+
+          var reactive_chart = new google.visualization.LineChart(document.getElementById('reactive_div'));
+      reactive_chart.draw(reactive_data, reactive_options)
+
+          // Max & Min Voltages
+          var volts = {{ volts|safe }};
+          var volts_data = google.visualization.arrayToDataTable(volts);
+          var volts_options = {'title': 'Voltage Limits',
+          'width': '94%',
+          'height': 500,
+          'series': {0:{ color: '#1F9494'}, 1:{ color: '#D62BD9'}},
+          'vAxis': {title: 'V'}
+          };
+
+          var volts_chart = new google.visualization.LineChart(document.getElementById('volts_div'));
+          volts_chart.draw(volts_data, volts_options);
+
+          // Losses
+          var losses = {{ losses|safe }};
+          var losses_data = google.visualization.arrayToDataTable(losses);
+          var losses_options = {'title': 'losses',
+          'width': '94%',
+          'height': 500,
+          'series': {0: {color: 'green'}},
+          'legend': 'none',
+          'vAxis': {title: 'kWh'}
+          };
+
+          var losses_chart = new google.visualization.LineChart(document.getElementById('losses_div'));
+          losses_chart.draw(losses_data, losses_options)
+
+    }
+      </script>
+
+      <script>
+      var dataurl = '{% url "pillar_gis" %}';
+      var dataurl2 = '{% url "cable_gis" %}';
+      var loadurl = '{% url "load_gis" %}';
+
+      window.addEventListener("map:init", function (event) {
+        var map = event.detail.map;
+        // Download GeoJSON data with Ajax
+        fetch(dataurl)
+          .then(function(resp) {
+            return resp.json();
+          })
+          .then(function(data) {
+            L.geoJson(data, {
+              onEachFeature: function onEachFeature(feature, layer) {
+                var props = feature.properties;
+                var content = `<img width="300" src="${props.picture_url}"/><h3>${props.title}</h3><p>${props.description}</p>`;
+                layer.bindPopup(content);
+            }}).addTo(map);
+          });
+        // Download GeoJSON data with Ajax
+        var geojsonMarkerOptions = {
+              radius: 4,
+              fillColor: "#ff7800",
+              color: "#000",
+              weight: 1,
+              opacity: 1,
+              fillOpacity: 0.8
+        };
+        fetch(loadurl)
+          .then(function(resp) {
+            return resp.json();
+          })
+          .then(function(data) {
+            L.geoJson(data, {
+              onEachFeature: function onEachFeature(feature, layer) {
+                var props = feature.properties;
+                var content = `<h3>network: ${props.network}</h3><p>feeder: ${props.feeder}</p>`;
+                layer.bindPopup(content);
+            },
+            pointToLayer: function (feature, latlng) {
+        return L.circleMarker(latlng, geojsonMarkerOptions);
+    }
+          }).addTo(map);
+          });
+        // Download GeoJSON data with Ajax
+        fetch(dataurl2)
+          .then(function(resp) {
+            return resp.json();
+          })
+          .then(function(data) {
+            L.geoJson(data, {
+              onEachFeature: function onEachFeature(feature, layer) {
+                var props = feature.properties;
+                var content = `<h3>${props.network}</h3><p>${props.feeder}</p>`;
+                layer.bindPopup(content);
+            },
+              style: function(feature){
+                return {
+                weight: 2.5,
+                opacity: 1,
+              color: "#ff0000",
+            }}
+          }).addTo(map);
+          
+          map.setView(new L.LatLng(57.54028, -2.963445), 15.2);
+
+          });
+      });
+      </script>
+
+
+
+
+
+    </head>
+    
+
+    <body  onload =  "if (location.search.length < 1){ document.getElementById('submit_time').submit()}">
+    
+    
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+          <h1 class="h2">Analytic 3 - Network Simulation</h1>
+          <div class="btn-toolbar mb-2 mb-md-0">
+
+
+
+
+            <form action={% url 'analytic3' %} method="get" id="submit_time">
+              <div class="form-row align-items-center">
+                <div class="col-auto my-1">
+                  <select class="custom-select mr-sm-2" id="time" name="time">
+                    <option>Select Analysis Time</option>
+                    <option value="day" selected="selected">Previous 24hrs</option>
+                    <option value="day2">Previous 48hrs</option>
+                    <option value="week">Previous Week</option>
+                    <option value="all">All</option>
+                  </select>
+                </div>
+                <div class="col-auto my-1">
+                  <button type="submit" class="btn btn-primary" id="form_submit">Submit</button>
+                </div>
+                <div class="btn-group ml-2">
+                  <button class="btn btn-sm btn-outline-secondary" formaction={% url 'analytic3_data' %}>Export Data</button>
+                </div>
+
+              </div>
+            </form>
+            
+
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+          {% leaflet_map "main" %}
+        </div>
+
+
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <div class="container-fluid">
+          <div class="row">
+              <div class="col-lg-6", id = "chart_div">
+              </div>
+              <div class="col-lg-6" id = "reactive_div">
+
+              </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3">
+        <div class="container-fluid">
+          <div class="row">
+              <div class="col-lg-6", id = "volts_div">
+              </div>
+              <div class="col-lg-6" id = "losses_div">
+
+              </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 mt-3">
+
+        <h1 class="h3">Selected Statistics</h1>
+      </div>
+
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-4">
+
+      <table class="table table-hover" style="width:75%; margin:auto">
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col">Value</th>
+            <th scope="col">Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Maximum Power</th>
+            <td>{{ max_power }}</td>
+            <td>{{ max_power_time }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Maximum Phase Voltage</th>
+            <td>{{ max_vs }}</td>
+            <td>{{ max_vs_time }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Minimum Phase Voltage</th>
+            <td> {{ min_vs }} </td>
+            <td>{{ min_vs_time }}</td>
+          </tr>
+        </tbody>
+      </table>
+      </div>
+    
+      <script>
+        window.onload = function() {
+    var selItem = sessionStorage.getItem("SelItem");  
+    $('#time').val(selItem);
+    }
+    $('#time').change(function() { 
+        var selVal = $(this).val();
+        sessionStorage.setItem("SelItem", selVal);
+    });
+      </script>
+
+    </body>
+
+
+
+
+
+    </html>
+
+    {% endblock %}
+    
+    
+    
+    

@@ -1,0 +1,107 @@
+{% extends 'base_bootstrap.html' %}
+
+{% block content %}
+
+<html>
+    <head>
+      <!--Load the AJAX API-->
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"></link>
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+      <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+      <script type="text/javascript">
+
+        // Load the Visualization API and the corechart package.
+        google.charts.load('current', {'packages':['corechart']});
+    
+        // Set a callback to run when the Google Visualization API is loaded.
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+          
+          var daf = {{ d_act_forecast|safe }};
+          var daf_data = google.visualization.arrayToDataTable(daf);
+          var daf_options = {'title': 'Demand',
+          'width': '94%',
+          'height': 500,
+          };
+
+          var daf_chart = new google.visualization.LineChart(document.getElementById('daf_div'));
+          daf_chart.draw(daf_data, daf_options);
+
+          var gaf = {{ g_act_forecast|safe }};
+          var gaf_data = google.visualization.arrayToDataTable(gaf);
+          var gaf_options = {'title': 'Generation',
+          'width': '94%',
+          'height': 500,
+          };
+
+          var gaf_chart = new google.visualization.LineChart(document.getElementById('gaf_div'));
+          gaf_chart.draw(gaf_data, gaf_options);
+
+          var schedule = {{ schedule|safe }};
+          var schedule_data = google.visualization.arrayToDataTable(schedule);
+          var schedule_options = {'title': 'Storage Schedule',
+          'width': '94%',
+          'height': 500,
+          };
+
+          var schedule_chart = new google.visualization.LineChart(document.getElementById('schedule_div'));
+          schedule_chart.draw(schedule_data, schedule_options); 
+          
+          var flows_all = {{ flows_all|safe }};
+          var flows_all_data = google.visualization.arrayToDataTable(flows_all);
+          var flows_all_options = {'title': 'Power Flows',
+          'width': '94%',
+          'height': 500,
+          };
+
+          var flows_all_chart = new google.visualization.LineChart(document.getElementById('flows_all_div'));
+          flows_all_chart.draw(flows_all_data, flows_all_options);            
+
+        }
+
+      </script>
+    </head>
+
+    <body>
+
+
+    <main role="main" class="col-md-9 ml-sm-auto col-lg-10 pt-3 px-4">
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <h1 class="h2">Analytic 1 - Storage Scheduling</h1>
+      </div>
+
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <div class="container-fluid">
+          <div class="row">
+              <div class="col-lg-6", id = "daf_div">
+              </div>
+              <div class="col-lg-6" id = "gaf_div">
+
+              </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+        <div class="container-fluid">
+          <div class="row">
+              <div class="col-lg-6", id = "schedule_div">
+              </div>
+              <div class="col-lg-6" id = "flows_all_div">
+
+              </div>
+          </div>
+        </div>
+      </div>   
+
+   
+
+    </body>
+</html>
+
+{% endblock %}
+    
